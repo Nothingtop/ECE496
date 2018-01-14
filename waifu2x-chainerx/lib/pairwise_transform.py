@@ -15,7 +15,8 @@ def _noise(src, p, level):
         # YUV 420
         sampling_factor = '2x2,1x1,1x1'
     if level == 0:
-        dst = iproc.jpeg(src, sampling_factor, random.randint(85, 100))
+        #dst = iproc.jpeg(src, sampling_factor, random.randint(85, 100))
+        dst = iproc.jpeg(src, sampling_factor, 10)
         return dst
     elif level == 1:
         dst = iproc.jpeg(src, sampling_factor, random.randint(65, 90))
