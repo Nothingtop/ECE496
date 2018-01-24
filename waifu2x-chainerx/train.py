@@ -60,8 +60,7 @@ def get_config(base_args, model, train=True):
     ch = model.ch
     offset = model.offset
     inner_scale = model.inner_scale
-    # crop_size = base_args.out_size + offset * 2
-    crop_size = base_args.crop_size
+    crop_size = base_args.out_size + offset * 2
     in_size = crop_size // inner_scale
 
     if train:
