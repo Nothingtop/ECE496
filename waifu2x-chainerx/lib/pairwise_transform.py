@@ -6,6 +6,7 @@ from PIL import Image
 
 from lib import data_augmentation
 from lib import iproc
+from matplotlib import pyplot as plt
 
 
 def _noise(src, p, level):
@@ -17,6 +18,7 @@ def _noise(src, p, level):
     if level == 0:
         #dst = iproc.jpeg(src, sampling_factor, random.randint(85, 100))
         dst = iproc.jpeg(src, sampling_factor, 10)
+
         return dst
     elif level == 1:
         dst = iproc.jpeg(src, sampling_factor, random.randint(65, 90))
@@ -46,21 +48,6 @@ def noise(src, p, p_chroma, level):
         return dst
     else:
         return src
-
-
-def scale(src, filters, bmin, bmax, upsampling):
-    # 'box', 'triangle', 'hermite', 'hanning', 'hamming', 'blackman',
-    # 'gaussian', 'quadratic', 'cubic', 'catrom', 'mitchell', 'lanczos',
-    # 'lanczos2', 'sinc'
-    h, w = src.shape[:2]
-    blur = np.random.uniform(bmin, bmax)
-    rand = random.randint(0, len(filters) - 1)
-    with iproc.array_to_wand(src) as tmp:
-        tmp.resize(w // 2, h // 2, filters[rand], blur)
-        if upsampling:
-            tmp.resize(w, h, 'box')
-        dst = iproc.wand_to_array(tmp)
-    return dst
 
 
 def noise_scale(src, filters, bmin, bmax, upsampling, p, p_chroma, level):
@@ -106,29 +93,11 @@ def active_cropping(x, y, ly, size, scale, p, tries):
         raise ValueError('Scaled shape must be equal (%s, %s)'
                          % (x.shape[:1], y.shape[:1]))
 
-    size_x = size // scale
-    if np.random.uniform() < p:
-        best_mse = 0
-        for i in range(tries):
-            pw = random.randint(0, x.shape[1] - size_x) * scale
-            ph = random.randint(0, x.shape[0] - size_x) * scale
-            crop_x = x[ph // scale:ph // scale + size_x,
-                       pw // scale:pw // scale + size_x, :]
-            crop_ly = ly[ph // scale:ph // scale + size_x,
-                         pw // scale:pw // scale + size_x, :]
-            mse = np.mean(np.square(crop_ly - crop_x))
-            if mse >= best_mse:
-                best_mse = mse
-                best_cx = crop_x
-                best_cy = y[ph:ph + size, pw:pw + size, :]
-        return best_cx, best_cy
-    else:
-        pw = random.randint(0, x.shape[1] - size_x) * scale
-        ph = random.randint(0, x.shape[0] - size_x) * scale
-        crop_x = x[ph // scale:ph // scale + size_x,
-                   pw // scale:pw // scale + size_x, :]
-        crop_y = y[ph:ph + size, pw:pw + size, :]
-        return crop_x, crop_y
+    pw = random.randint(0, x.shape[1] - size)
+    ph = random.randint(0, x.shape[0] - size)
+    crop_x = x[ph:ph+size, pw:pw+size, :]
+    crop_y = y[ph:ph + size, pw:pw + size, :]
+    return crop_x, crop_y
 
 
 def pairwise_transform(src, cfg):
@@ -139,11 +108,7 @@ def pairwise_transform(src, cfg):
     bottom = cfg.crop_size - top
     y = preprocess(src, cfg)
 
-    if cfg.method == 'scale':
-        x = scale(
-            y, cfg.downsampling_filters,
-            cfg.resize_blur_min, cfg.resize_blur_max, upsampling)
-    elif cfg.method == 'noise':
+    if cfg.method == 'noise':
         if cfg.inner_scale != 1:
             raise ValueError('inner_scale must be 1')
         x = noise(y, cfg.nr_rate, cfg.chroma_subsampling_rate, cfg.noise_level)
@@ -164,25 +129,33 @@ def pairwise_transform(src, cfg):
         lowres_y = iproc.scale(y, 0.5)
 
     patch_x = np.zeros(
-        (cfg.patches, cfg.ch, cfg.in_size, cfg.in_size), dtype=np.uint8)
+        (cfg.patches, cfg.ch, cfg.crop_size, cfg.crop_size), dtype=np.uint8)
     patch_y = np.zeros(
-        (cfg.patches, cfg.ch, cfg.out_size, cfg.out_size), dtype=np.uint8)
+        (cfg.patches, cfg.ch, cfg.crop_size, cfg.crop_size), dtype=np.uint8)
 
     for i in range(cfg.patches):
         crop_x, crop_y = active_cropping(
             x, y, lowres_y, cfg.crop_size, cfg.inner_scale,
             cfg.active_cropping_rate, cfg.active_cropping_tries)
+        # plt.imshow(crop_x)
+        # plt.title("Crop X")
+        # plt.show()
+        # plt.imshow(crop_y)
+        # plt.title("Crop Y")
+        # plt.show()
+        # print ('cropx', crop_x, 'cropy', crop_y)
+        # assert(0)
         if cfg.ch == 1:
             ycbcr_x = Image.fromarray(crop_x).convert('YCbCr')
             ycbcr_y = Image.fromarray(crop_y).convert('YCbCr')
             crop_x = np.array(ycbcr_x)[:, :, 0]
-            crop_y = np.array(ycbcr_y)[top:bottom, top:bottom, 0]
+            crop_y = np.array(ycbcr_y)[:, :, 0]
             patch_x[i] = crop_x.reshape(cfg.ch, cfg.in_size, cfg.in_size)
-            patch_y[i] = crop_y.reshape(cfg.ch, cfg.out_size, cfg.out_size)
+            patch_y[i] = crop_y.reshape(cfg.ch, cfg.crop_size, cfg.crop_size)
         elif cfg.ch == 3:
-            crop_y = crop_y[top:bottom, top:bottom, :]
+            # crop_y = crop_y[top:bottom, top:bottom, :]
             crop_x = crop_x.transpose(2, 0, 1)
             crop_y = crop_y.transpose(2, 0, 1)
             patch_x[i] = crop_x.reshape(cfg.ch, cfg.in_size, cfg.in_size)
-            patch_y[i] = crop_y.reshape(cfg.ch, cfg.out_size, cfg.out_size)
+            patch_y[i] = crop_y
     return patch_x, patch_y
