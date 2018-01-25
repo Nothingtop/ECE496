@@ -22,7 +22,7 @@ p.add_argument('--noise_level', '-n', type=int, choices=[0, 1, 2, 3],
 p.add_argument('--nr_rate', type=float, default=0.65)
 p.add_argument('--chroma_subsampling_rate', type=float, default=0.5)
 p.add_argument('--out_size', type=int, default=16)
-p.add_argument('--crop_size', type=int, default=16)
+p.add_argument('--crop_size', type=int, default=50)
 p.add_argument('--max_size', type=int, default=256)
 p.add_argument('--active_cropping_rate', type=float, default=0.5)
 p.add_argument('--active_cropping_tries', type=int, default=10)
