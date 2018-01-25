@@ -22,6 +22,7 @@ from lib.settings import args
 
 def train_inner_epoch(model, weight, optimizer, data_queue, batch_size):
     sum_loss = 0
+    progress = 25
     scale = 1. / 255.
     xp = model.xp
     train_x, train_y = data_queue.get()
@@ -37,6 +38,11 @@ def train_inner_epoch(model, weight, optimizer, data_queue, batch_size):
         loss.backward()
         optimizer.update()
         sum_loss += loss.data * len(batch_x)
+
+        if (i / len(train_x) > progress/100) :
+            print("Progress: ", progress, "%")
+            progress += 25
+
     return sum_loss / len(train_x)
 
 

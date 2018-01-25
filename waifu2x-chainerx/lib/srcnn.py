@@ -11,21 +11,21 @@ class VGG7(chainer.Chain):
         self.inner_scale = 1
         super(VGG7, self).__init__(
             conv0=L.Convolution2D(ch, 32, 3, pad=1),
-            # conv1=L.Convolution2D(32, 32, 3, pad=1),
-            # conv2=L.Convolution2D(32, 64, 3, pad=1),
-            # conv3=L.Convolution2D(64, 64, 3, pad=1),
-            # conv4=L.Convolution2D(64, 128, 3, pad=1),
-            # conv5=L.Convolution2D(128, 128, 3, pad=1),
-            conv6=L.Convolution2D(32, ch, 3, pad=1),
+            conv1=L.Convolution2D(32, 32, 3, pad=1),
+            conv2=L.Convolution2D(32, 64, 3, pad=1),
+            conv3=L.Convolution2D(64, 64, 3, pad=1),
+            conv4=L.Convolution2D(64, 128, 3, pad=1),
+            conv5=L.Convolution2D(128, 128, 3, pad=1),
+            conv6=L.Convolution2D(128, ch, 3, pad=1),
         )
 
     def __call__(self, x):
         h = F.leaky_relu(self.conv0(x), 0.1)
-        # h = F.leaky_relu(self.conv1(h), 0.1)
-        # h = F.leaky_relu(self.conv2(h), 0.1)
-        # h = F.leaky_relu(self.conv3(h), 0.1)
-        # h = F.leaky_relu(self.conv4(h), 0.1)
-        # h = F.leaky_relu(self.conv5(h), 0.1)
+        h = F.leaky_relu(self.conv1(h), 0.1)
+        h = F.leaky_relu(self.conv2(h), 0.1)
+        h = F.leaky_relu(self.conv3(h), 0.1)
+        h = F.leaky_relu(self.conv4(h), 0.1)
+        h = F.leaky_relu(self.conv5(h), 0.1)
         y = self.conv6(h)
         return y
 
