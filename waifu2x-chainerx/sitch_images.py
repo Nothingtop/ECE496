@@ -5,10 +5,10 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from resizeimage import resizeimage
 
-ORIGINAL = "/nfs/ug/thesis/thesis0/mkccgrp/show_janders/5toon/original/"
-COMPRESSED = "/nfs/ug/thesis/thesis0/mkccgrp/show_janders/5toon/50%/"
-DECOMPRESSED = "/nfs/ug/thesis/thesis0/mkccgrp/show_janders/5toon/output/"
-OUTPUT = "/nfs/ug/thesis/thesis0/mkccgrp/show_janders/5toon/comparison/"
+ORIGINAL = "/homes/c/chenhen7/foTodai/original/"
+COMPRESSED = "/homes/c/chenhen7/foTodai/input/"
+DECOMPRESSED = "/homes/c/chenhen7/foTodai/output/"
+OUTPUT = "/homes/c/chenhen7/foTodai/comparison/"
 
 def get_images(folder):
     im = []

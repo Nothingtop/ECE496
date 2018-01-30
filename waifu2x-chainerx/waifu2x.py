@@ -55,6 +55,7 @@ p.add_argument('--arch', '-a',
                         'ResNet10', '2'],
                default='VGG7')
 p.add_argument('--model_dir', '-d', default=None)
+p.add_argument('--model_name', default=None)
 p.add_argument('--method', '-m', choices=['noise', 'scale', 'noise_scale'],
                default='scale')
 p.add_argument('--scale_factor', '-s', type=float, default=2.0)
@@ -101,9 +102,9 @@ if __name__ == '__main__':
         models['scale'] = srcnn.archs[args.arch](ch)
         chainer.serializers.load_npz(model_path, models['scale'])
     if args.method == 'noise' or flag:
-        model_name = ('anime_style_noise%d_%s.npz'
-                      % (args.noise_level, args.color))
-        model_path = os.path.join(model_dir, model_name)
+        #model_name = ('flickr300x300_7layer_%s.npz'
+                      #% (args.noise_level, args.color))
+        model_path = os.path.join(model_dir, args.model_name)
         models['noise'] = srcnn.archs[args.arch](ch)
         chainer.serializers.load_npz(model_path, models['noise'])
 

@@ -163,6 +163,12 @@ def train():
     best_loss = np.inf
     for epoch in range(0, args.epoch):
         print('### epoch: %d ###' % epoch)
+
+        # print('* starting processes of dataset sampler...', end=' ')
+        # valid_queue = DatasetSampler(valid_list, valid_config)
+        # train_queue = DatasetSampler(train_list, train_config)
+        # print('done')
+
         train_queue.reload_switch(init=(epoch < args.epoch - 1))
         for inner_epoch in range(0, args.inner_epoch):
             best_count += 1
