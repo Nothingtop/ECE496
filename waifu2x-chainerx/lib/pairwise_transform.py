@@ -127,33 +127,33 @@ def pairwise_transform(src, cfg):
         lowres_y = iproc.scale(y, 0.5)
 
     patch_x = np.zeros(
-        (cfg.patches, cfg.ch, cfg.crop_size, cfg.crop_size), dtype=np.uint8)
+        (cfg.ch, cfg.crop_size, cfg.crop_size), dtype=np.uint8)
     patch_y = np.zeros(
-        (cfg.patches, cfg.ch, cfg.crop_size, cfg.crop_size), dtype=np.uint8)
+        (cfg.ch, cfg.crop_size, cfg.crop_size), dtype=np.uint8)
 
-    for i in range(cfg.patches):
-        crop_x, crop_y = active_cropping(
-            x, y, lowres_y, cfg.crop_size, cfg.inner_scale,
-            cfg.active_cropping_rate, cfg.active_cropping_tries)
-        # plt.imshow(crop_x)
-        # plt.title("Crop X")
-        # plt.show()
-        # plt.imshow(crop_y)
-        # plt.title("Crop Y")
-        # plt.show()
-        # print ('cropx', crop_x, 'cropy', crop_y)
-        # assert(0)
-        if cfg.ch == 1:
-            ycbcr_x = Image.fromarray(crop_x).convert('YCbCr')
-            ycbcr_y = Image.fromarray(crop_y).convert('YCbCr')
-            crop_x = np.array(ycbcr_x)[:, :, 0]
-            crop_y = np.array(ycbcr_y)[:, :, 0]
-            patch_x[i] = crop_x.reshape(cfg.ch, cfg.in_size, cfg.in_size)
-            patch_y[i] = crop_y.reshape(cfg.ch, cfg.crop_size, cfg.crop_size)
-        elif cfg.ch == 3:
-            # crop_y = crop_y[top:bottom, top:bottom, :]
-            crop_x = crop_x.transpose(2, 0, 1)
-            crop_y = crop_y.transpose(2, 0, 1)
-            patch_x[i] = crop_x.reshape(cfg.ch, cfg.in_size, cfg.in_size)
-            patch_y[i] = crop_y
+
+    crop_x, crop_y = active_cropping(
+        x, y, lowres_y, cfg.crop_size, cfg.inner_scale,
+        cfg.active_cropping_rate, cfg.active_cropping_tries)
+    # plt.imshow(crop_x)
+    # plt.title("Crop X")
+    # plt.show()
+    # plt.imshow(crop_y)
+    # plt.title("Crop Y")
+    # plt.show()
+    # print ('cropx', crop_x, 'cropy', crop_y)
+    # assert(0)
+    if cfg.ch == 1:
+        ycbcr_x = Image.fromarray(crop_x).convert('YCbCr')
+        ycbcr_y = Image.fromarray(crop_y).convert('YCbCr')
+        crop_x = np.array(ycbcr_x)[:, :, 0]
+        crop_y = np.array(ycbcr_y)[:, :, 0]
+        patch_x = crop_x.reshape(cfg.ch, cfg.in_size, cfg.in_size)
+        patch_y = crop_y.reshape(cfg.ch, cfg.crop_size, cfg.crop_size)
+    elif cfg.ch == 3:
+        # crop_y = crop_y[top:bottom, top:bottom, :]
+        crop_x = crop_x.transpose(2, 0, 1)
+        crop_y = crop_y.transpose(2, 0, 1)
+        patch_x = crop_x.reshape(cfg.ch, cfg.in_size, cfg.in_size)
+        patch_y = crop_y
     return patch_x, patch_y

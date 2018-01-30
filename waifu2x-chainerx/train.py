@@ -33,7 +33,6 @@ def train_inner_epoch(model, weight, optimizer, data_queue, batch_size):
         batch_y = xp.array(train_y[local_perm], dtype=np.float32) * scale
         model.cleargrads()
         pred = model(batch_x)
-        # loss = F.mean_squared_error(pred, batch_y)
         loss = clipped_weighted_huber_loss(pred, batch_y, weight)
         loss.backward()
         optimizer.update()
@@ -72,12 +71,9 @@ def get_config(base_args, model, train=True):
 
     if train:
         max_size = base_args.max_size
-        patches = base_args.patches
     else:
         max_size = 0
         coeff = (1 - base_args.validation_rate) / base_args.validation_rate
-        patches = int(
-            round(base_args.validation_crop_rate * coeff * base_args.patches))
 
     config = {
         'ch': ch,
@@ -96,7 +92,6 @@ def get_config(base_args, model, train=True):
         'random_half_rate': base_args.random_half_rate,
         'random_color_noise_rate': base_args.random_color_noise_rate,
         'random_unsharp_mask_rate': base_args.random_unsharp_mask_rate,
-        'patches': patches,
         'downsampling_filters': base_args.downsampling_filters,
         'resize_blur_min': base_args.resize_blur_min,
         'resize_blur_max': base_args.resize_blur_max,

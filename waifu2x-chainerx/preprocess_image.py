@@ -1,11 +1,9 @@
-from io import BytesIO
 import os
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-from resizeimage import resizeimage
 
-DATA_PREFIX = "/nfs/ug/thesis/thesis0/mkccgrp/flickrFaces_300x300_test/"
+DATA_PREFIX = "/nfs/ug/thesis/thesis0/mkccgrp/MIRFLICKR-1M/portrait_images/test/"
 PREPROCESSED_PREFIX = "/nfs/ug/thesis/thesis0/mkccgrp/flickrFaces_300x300_test/"
 kkk = True
 QUALITY = 10
@@ -43,8 +41,6 @@ def get_images():
     for file in os.listdir(DATA_PREFIX):
         if file.endswith(".jpg") or file.endswith(".png") or file.endswith(".bmp") \
                 or file.endswith(".gif") or file.endswith(".jpeg"):
-            #            path = os.path.abspath(file)
-            #            print("Image Path is: " + str(path))
             im.append((os.path.splitext(file)[0], Image.open(DATA_PREFIX + file).convert("RGB")))
 
     return im
@@ -57,8 +53,6 @@ if __name__ == '__main__':
         for i, (filename, image) in enumerate(get_images()):
             image.save(PREPROCESSED_PREFIX + filename + "_" + QUALITY.__str__() + "%"
                        + ".jpg", format="JPEG", quality=QUALITY)
-            if i == 100:
-                break
     else:
         for i, (filename, image) in enumerate(get_images()):
             new_im = image.resize((QUALITY, QUALITY))

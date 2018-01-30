@@ -88,7 +88,7 @@ class DatasetSampler(object):
 
 
 def _worker(datalist, cfg, queue, finalized):
-    sample_size = cfg.patches * len(datalist)
+    sample_size = len(datalist)
     x = np.zeros(
         (sample_size, cfg.ch, cfg.in_size, cfg.in_size), dtype=np.uint8)
     y = np.zeros(
@@ -99,8 +99,8 @@ def _worker(datalist, cfg, queue, finalized):
             break
         img = iproc.read_image_rgb_uint8(datalist[i])
         xc_batch, yc_batch = pairwise_transform(img, cfg)
-        x[cfg.patches * i:cfg.patches * (i + 1)] = xc_batch[:]
-        y[cfg.patches * i:cfg.patches * (i + 1)] = yc_batch[:]
+        x[i: (i + 1)] = xc_batch[:]
+        y[i: (i + 1)] = yc_batch[:]
 
     with NamedTemporaryFile(delete=False) as cache:
         np.savez(cache, x=x, y=y)

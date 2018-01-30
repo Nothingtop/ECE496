@@ -102,8 +102,6 @@ if __name__ == '__main__':
         models['scale'] = srcnn.archs[args.arch](ch)
         chainer.serializers.load_npz(model_path, models['scale'])
     if args.method == 'noise' or flag:
-        #model_name = ('flickr300x300_7layer_%s.npz'
-                      #% (args.noise_level, args.color))
         model_path = os.path.join(model_dir, args.model_name)
         models['noise'] = srcnn.archs[args.arch](ch)
         chainer.serializers.load_npz(model_path, models['noise'])
