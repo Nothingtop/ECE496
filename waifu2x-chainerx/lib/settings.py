@@ -17,7 +17,7 @@ p.add_argument('--arch', '-a',
                default='VGG7')
 p.add_argument('--method', '-m', choices=['noise', 'scale', 'noise_scale'],
                default='scale')
-p.add_argument('--noise_level', '-n', type=int, choices=[0, 1, 2, 3],
+p.add_argument('--noise_level', '-n', type=int, choices=[0, 1, 2, 3, 4, 5],
                default=1)
 p.add_argument('--nr_rate', type=float, default=0.65)
 p.add_argument('--chroma_subsampling_rate', type=float, default=0.5)
