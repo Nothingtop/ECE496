@@ -101,8 +101,6 @@ def active_cropping(x, y, ly, size, scale, p, tries):
 
 
 def pairwise_transform(src, cfg):
-    unstable_region_offset_x = 8
-    unstable_region_offset_y = unstable_region_offset_x * cfg.inner_scale
     upsampling = (cfg.inner_scale == 1)
     y = preprocess(src, cfg)
 
@@ -118,10 +116,6 @@ def pairwise_transform(src, cfg):
             cfg.resize_blur_min, cfg.resize_blur_max, upsampling,
             cfg.nr_rate, cfg.chroma_subsampling_rate, cfg.noise_level)
 
-    y = y[unstable_region_offset_y:y.shape[0] - unstable_region_offset_y,
-          unstable_region_offset_y:y.shape[1] - unstable_region_offset_y]
-    x = x[unstable_region_offset_x:x.shape[0] - unstable_region_offset_x,
-          unstable_region_offset_x:x.shape[1] - unstable_region_offset_x]
     lowres_y = y.copy()
     if cfg.crop_size != cfg.in_size:
         lowres_y = iproc.scale(y, 0.5)

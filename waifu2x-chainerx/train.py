@@ -20,7 +20,7 @@ from lib.loss.clipped_weighted_huber_loss import clipped_weighted_huber_loss
 from lib.settings import args
 
 
-def train_inner_epoch(model, weight, optimizer, data_queue, batch_size):
+def train_epoch(model, weight, optimizer, data_queue, batch_size):
     sum_loss = 0
     progress = 25
     scale = 1. / 255.
@@ -45,7 +45,7 @@ def train_inner_epoch(model, weight, optimizer, data_queue, batch_size):
     return sum_loss / len(train_x)
 
 
-def valid_inner_epoch(model, data_queue, batch_size):
+def valid_epoch(model, data_queue, batch_size):
     sum_score = 0
     scale = 1. / 255.
     xp = model.xp
@@ -66,7 +66,6 @@ def get_config(base_args, model, train=True):
     offset = model.offset
     inner_scale = model.inner_scale
     crop_size = base_args.crop_size
-    # crop_size = base_args.out_size + offset * 2
     in_size = crop_size // inner_scale
 
     if train:
@@ -158,12 +157,12 @@ def train():
 
         train_queue.reload_switch(init=(epoch < args.epoch - 1))
         start = time.time()
-        train_loss = train_inner_epoch(
+        train_loss = train_epoch(
             model, weight, optimizer, train_queue, args.batch_size)
         train_queue.wait()
 
         print('    * loss on train dataset: %f' % train_loss)
-        valid_score = valid_inner_epoch(
+        valid_score = valid_epoch(
             model, valid_queue, args.batch_size)
 
         print('    * score on validation dataset: PSNR %f dB'

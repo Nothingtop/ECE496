@@ -39,7 +39,6 @@ p.add_argument('--downsampling_filters', nargs='+', default=['box'])
 p.add_argument('--resize_blur_min', type=float, default=0.95)
 p.add_argument('--resize_blur_max', type=float, default=1.05)
 p.add_argument('--epoch', '-e', type=int, default=50)
-p.add_argument('--inner_epoch', type=int, default=4)
 p.add_argument('--finetune', '-f', default=None)
 p.add_argument('--model_name', default=None)
 
