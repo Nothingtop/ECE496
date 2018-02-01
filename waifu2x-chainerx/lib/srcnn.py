@@ -16,9 +16,9 @@ class VGG7(chainer.Chain):
             conv3=L.Convolution2D(64, 64, 3, pad=1),
             conv4=L.Convolution2D(64, 128, 3, pad=1),
             conv5=L.Convolution2D(128, 128, 3, pad=1),
-            # conv6=L.Convolution2D(128, 256, 3, pad=1),
-            # conv7=L.Convolution2D(256, 256, 3, pad=1),
-            conv6=L.Convolution2D(128, ch, 3, pad=1),
+            conv6=L.Convolution2D(128, 256, 3, pad=1),
+            conv7=L.Convolution2D(256, 256, 3, pad=1),
+            conv8=L.Convolution2D(256, ch, 3, pad=1),
         )
 
     def __call__(self, x):
@@ -28,9 +28,9 @@ class VGG7(chainer.Chain):
         h = F.leaky_relu(self.conv3(h), 0.1)
         h = F.leaky_relu(self.conv4(h), 0.1)
         h = F.leaky_relu(self.conv5(h), 0.1)
-        # h = F.leaky_relu(self.conv6(h), 0.1)
-        # h = F.leaky_relu(self.conv7(h), 0.1)
-        y = self.conv6(h)
+        h = F.leaky_relu(self.conv6(h), 0.1)
+        h = F.leaky_relu(self.conv7(h), 0.1)
+        y = self.conv8(h)
         return y
 
 

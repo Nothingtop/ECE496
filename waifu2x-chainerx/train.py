@@ -147,6 +147,10 @@ def train():
     valid_config = get_config(args, model, train=False)
     train_config = get_config(args, model, train=True)
 
+    best_count = 0
+    best_score = 0
+    best_loss = np.inf
+
     for epoch in range(0, args.epoch):
         print('### epoch: %d ###' % epoch)
 
@@ -156,25 +160,37 @@ def train():
         print('done')
 
         train_queue.reload_switch(init=(epoch < args.epoch - 1))
+
+        best_count += 1
         start = time.time()
         train_loss = train_epoch(
             model, weight, optimizer, train_queue, args.batch_size)
         train_queue.wait()
-
-        print('    * loss on train dataset: %f' % train_loss)
+        if train_loss < best_loss:
+            best_loss = train_loss
+            print('    * best loss on train dataset: %f' % train_loss)
         valid_score = valid_epoch(
             model, valid_queue, args.batch_size)
-
-        print('    * score on validation dataset: PSNR %f dB'
-              % valid_score)
-        best_model = model.copy().to_cpu()
-        epoch_path = 'epoch/%s_epoch%dk.npz' % (model_name, (epoch + 1)*16)
+        if valid_score > best_score:
+            best_count = 0
+            best_score = valid_score
+            print('    * best score on validation dataset: PSNR %f dB'
+                  % valid_score)
+            best_model = model.copy().to_cpu()
+            epoch_path = 'epoch/%s_epoch%dk.npz' % (model_name, (epoch + 1) * 16)
+            chainer.serializers.save_npz(model_path, best_model)
+            shutil.copy(model_path, epoch_path)
+        if best_count >= args.lr_decay_interval:
+            best_count = 0
+            optimizer.alpha *= args.lr_decay
+            if optimizer.alpha < args.lr_min:
+                optimizer.alpha = args.lr_min
+            else:
+                print('    * learning rate decay: %f' % optimizer.alpha)
+        print('    * elapsed time: %f sec' % (time.time() - start))
+        epoch_path = 'epoch/%s_epoch%dk.npz' % (model_name, (epoch + 1) * 16)
         chainer.serializers.save_npz(model_path, best_model)
         shutil.copy(model_path, epoch_path)
-
-        optimizer.alpha *= args.lr_decay
-        print('    * learning rate decay: %f' % optimizer.alpha)
-        print('    * elapsed time: %f sec' % (time.time() - start))
 
 
 warnings.filterwarnings('ignore')
