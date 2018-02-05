@@ -148,3 +148,5 @@ if __name__ == '__main__':
             outpath = os.path.join(args.output, outname)
             dst.save(outpath, icc_profile=icc_profile)
             six.print_('Saved as \'%s\'' % outpath)
+            #ilist, fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog = ssim.testing_for_file(args.output,outname,'/nfs/ug/thesis/thesis0/mkccgrp/testOriginal',10,path)
+            #ssim.write_data_to_file(fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog, cnn)
