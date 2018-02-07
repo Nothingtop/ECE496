@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 import six
 
+# from image_utility import ssim_finalizing as ssim
 from lib import reconstruct
 from lib import srcnn
 
@@ -47,6 +48,7 @@ def upscale_image(src, model, cfg):
 
 p = argparse.ArgumentParser()
 p.add_argument('--gpu', '-g', type=int, default=-1)
+# p.add_argument('--original', '-org')
 p.add_argument('--input', '-i', default='images/small.png')
 p.add_argument('--output', '-o', default='./')
 p.add_argument('--arch', '-a',
@@ -74,6 +76,20 @@ if args.arch in srcnn.table:
     args.arch = srcnn.table[args.arch]
 if args.width != 0 and args.height != 0:
     args.height = 0
+
+
+def get_images():
+    im = []
+    i = 0
+    for file in os.listdir(args.input):
+        if file.endswith(".jpg") or file.endswith(".png") or file.endswith(".bmp") \
+                or file.endswith(".gif") or file.endswith(".jpeg"):
+            im.append((os.path.splitext(file)[0], Image.open(args.input + file).convert("RGB")))
+            if args.total_samples <= i-1:
+                break
+            i += 1
+
+    return im
 
 
 if __name__ == '__main__':
@@ -117,6 +133,11 @@ if __name__ == '__main__':
     else:
         filelist = [args.input]
 
+    # if os.path.isdir(args.original):
+    #     filelist_original = glob.glob(os.path.join(args.original, '*.*'))
+    # else:
+    #     filelist_original = [args.original]
+
     for path in filelist:
         src = Image.open(path)
         w, h = src.size[:2]
@@ -125,28 +146,28 @@ if __name__ == '__main__':
         if args.height != 0:
             args.scale_factor = args.height / h
         icc_profile = src.info.get('icc_profile')
-        basename = os.path.basename(path)
-        outname, ext = os.path.splitext(basename)
+        outname, ext = os.path.splitext(os.path.basename(path))
+        # outname_original, ext_original = os.path.splitext(os.path.basename(path_original))
         if ext.lower() in ['.png', '.jpg', '.jpeg', '.bmp']:
-            outname += ('_(tta%d)' % args.tta_level if args.tta else '_')
+            # outname += ('_(tta%d)' % args.tta_level if args.tta else '_')
             dst = src.copy()
             if 'noise_scale' in models:
                 outname += '(noise%d_scale)' % args.noise_level
                 dst = upscale_image(dst, models['noise_scale'], args)
             else:
                 if 'noise' in models:
-                    outname += '(noise%d)' % args.noise_level
+                    # outname += '(noise%d)' % args.noise_level
                     dst = denoise_image(dst, models['noise'], args)
                 if 'scale' in models:
                     outname += '(scale%.1fx)' % args.scale_factor
                     dst = upscale_image(dst, models['scale'], args)
 
-            if args.model_dir is None:
-                outname += '(%s_%s).png' % (args.arch.lower(), args.color)
-            else:
-                outname += '(model_%s).png' % args.color
+            # if args.model_dir is None:
+            #     outname += '(%s_%s).png' % (args.arch.lower(), args.color)
+            # else:
+            #     outname += '(model_%s).png' % args.color
             outpath = os.path.join(args.output, outname)
-            dst.save(outpath, icc_profile=icc_profile)
+            dst.save(outpath+".png", icc_profile=icc_profile)
             six.print_('Saved as \'%s\'' % outpath)
-            #ilist, fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog = ssim.testing_for_file(args.output,outname,'/nfs/ug/thesis/thesis0/mkccgrp/testOriginal',10,path)
-            #ssim.write_data_to_file(fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog, cnn)
+            # ilist, fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog = ssim.testing_for_file(args.output,outname_original, args.original,10,path)
+            # ssim.write_data_to_file(fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog, "cnn")

@@ -54,14 +54,30 @@ def get_images():
 
     return im
 
+def get_images2():
+    im = []
+    i = 0
+    for file in os.listdir("/nfs/ug/thesis/thesis0/mkccgrp/testOralPresentation/"):
+        if file.endswith(".jpg") or file.endswith(".png") or file.endswith(".bmp") \
+                or file.endswith(".gif") or file.endswith(".jpeg"):
+            im.append((os.path.splitext(file)[0], Image.open("/nfs/ug/thesis/thesis0/mkccgrp/testOralPresentation/" + file).convert("RGB")))
+            if args.total_samples <= i-1:
+                break
+            i += 1
+
+    return im
+
 
 if __name__ == '__main__':
     if not os.path.exists(args.output):
         os.makedirs(args.output)
     if args.method == "compress":
         for i, (filename, image) in enumerate(get_images()):
-            image.save(args.output + filename + "_" + args.quality.__str__() + "%"
-                       + ".jpg", format="JPEG", quality=args.quality)
+            image.save(args.output + filename + ".jpg", format="JPEG", quality=args.quality)
+            temp = Image.open(args.output + filename + ".jpg")
+            temp.save(args.output + filename + ".png")
+        # for i, (filename, image) in enumerate(get_images2()):
+        #     image.save("/nfs/ug/thesis/thesis0/mkccgrp/testOralPresentation/" + filename + ".png", format="PNG")
 
     elif args.method == "resize":
         for i, (filename, image) in enumerate(get_images()):

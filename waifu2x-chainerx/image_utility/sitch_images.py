@@ -37,7 +37,7 @@ if __name__ == '__main__':
     for original, comp, decomp in zip(get_images(ORIGINAL), 
             get_images(COMPRESSED), get_images(DECOMPRESSED)):
         
-        print(original, original[1])
+        # print(original, original[1])
         width, height = original[1].size
         new_im = Image.new('RGB', (width*3, height))
         new_im.paste(original[1], (0, 0))
