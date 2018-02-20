@@ -94,7 +94,7 @@ def write_data_to_file(fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog, generator
 
     return
 
-3
+
 # Print statistics
 def print_stats(fo, fc, fg, regt, ssimoc, ssimog, mseoc, mseog, generator):
     print("generator used: " + str(generator))
@@ -194,7 +194,6 @@ def get_images(folder):
 
 if __name__ == '__main__':
     for subdir, dirs, filesx in os.walk(args.model_path_folder):
-
         # Iterate through every model
         for filex in filesx:
             # For a given model
@@ -216,8 +215,9 @@ if __name__ == '__main__':
             count = 0
             begcount = 0
             endcount = 100
-            output_file_dir = args.output + str(os.path.splitext(filex)[0]) + "/"
-
+            #change this ghetto ass part
+            # output_file_dir = args.output + "/" + str(os.path.splitext(filex)[0]) + "/"
+            output_file_dir = args.output
             for original, input, output in zip(get_images(args.original),
                                               get_images(args.input), get_images(output_file_dir)):
                 # For a given test file
