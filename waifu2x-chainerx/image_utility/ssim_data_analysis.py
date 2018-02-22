@@ -48,7 +48,7 @@ def print_ssim_values(file_location_names, original_file, ):
 
 	for image in image_sets:
 		ssim_values.append(ssim(original_img, image, data_range=original_img.max() - original_img.min(), multichannel = True))
-		# mse_values.append(mse(original_img, image))
+		mse_values.append(mse(original_img, image))
 
 	fig, axes = plt.subplots(nrows=1, ncols= len(image_sets), figsize=(10, 4),
 	                         sharex=True, sharey=True,

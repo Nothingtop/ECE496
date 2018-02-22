@@ -85,14 +85,13 @@ def write_data_to_file(ogFileSize, inFileSize, outFileSize, regt, ssimoc, ssimog
         os.makedirs(uuid_folder)
     parameters = locals()
     for parameter in list(parameters):
-        # if str(parameter) != "modelName":
+        if str(parameter) != "modelName":
         #     if str(parameter) != "namelist":
-        string_location = str(cwd) + "/" + uuid_folder + "/" + str(parameter) + ".txt"
-        f = open(string_location, 'w')
-        for ele in list(parameters[parameter]):
-            f.write(str(ele) + '\n')
-        f.close()
-
+            string_location = str(cwd) + "/" + uuid_folder + "/" + str(parameter) + ".txt"
+            f = open(string_location, 'w')
+            for ele in list(parameters[parameter]):
+                f.write(str(ele) + '\n')
+            f.close()
     return
 
 # Print statistics
