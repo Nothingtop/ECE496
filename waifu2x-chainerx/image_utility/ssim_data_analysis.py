@@ -18,7 +18,7 @@ import time
 from PIL import Image
 from skimage import data, img_as_float
 from skimage.measure import compare_ssim as ssim
-
+import re
 
 
 def collect_images(sorted_ssim_score_mass):
@@ -32,7 +32,7 @@ def collect_images(sorted_ssim_score_mass):
 
 	return collection_of_image_collections
 
-def print_ssim_values(file_location_names, original_file, ):
+def print_ssim_values(file_location_names, original_file, mse):
 
 	location_names = file_location_names # ["original.jpg", "input.jpg", "output_dejpeg_16k.png", "output_dejpeg_64k.png", "output_dejpeg_112k.png"]
 	image_sets = []
@@ -70,7 +70,7 @@ def print_ssim_values(file_location_names, original_file, ):
 #  Constants
 files_wanted = ["fc", "fg", "fo", "mseoc", "mseog", "regt", "ssimoc", "ssimog"]
 files_wanted = [s + ".txt" for s in files_wanted]
-data_location = "/nfs/ug/thesis/thesis0/mkccgrp/hengyue/ECE496/waifu2x-chainerx/oralPresentationSSIM"
+data_location = "/thesis0/mkccgrp/zcchew/waifuFresh/ECE496/waifu2x-chainerx/preconfigured_run/ssim_data"
 
 def plot_masses(sort_gen, sorted_ssim_score_mass, sort_ssim_score):
 
@@ -119,11 +119,25 @@ def plot_ssim_score(sort_gen, sort_ssim_score, sort_ssim_score_v):
 	# matplotlib.rc('xlabel', labelsize=15) 
 	# matplotlib.rc('ylabel', labelsize=15)
 	# matplotlib.rc('title', labelsize=15)  
-	plt.errorbar(sort_gen/1000, sort_ssim_score, sort_ssim_score_v, marker = 'o', linestyle = '--', color = "b")
+	plt.errorbar(sort_gen, sort_ssim_score, sort_ssim_score_v, marker = 'o', linestyle = '--', color = "b")
 	plt.title('GAN Model: SSIM Score vs. # Training Examples', fontsize = 15)
 	plt.ylabel('SSIM Score', fontsize = 15)
 	plt.xlabel('# Training Examples (in 1,000s)', fontsize = 15)
-	plt.xticks(sort_gen/1000)
+	plt.xticks(sort_gen)
+	plt.show()
+	return
+
+def plot_mse_score(sort_gen, sort_ssim_score):
+	matplotlib.rc('xtick', labelsize=15) 
+	matplotlib.rc('ytick', labelsize=15) 
+	# matplotlib.rc('xlabel', labelsize=15) 
+	# matplotlib.rc('ylabel', labelsize=15)
+	# matplotlib.rc('title', labelsize=15)  
+	plt.errorbar(sort_gen, sort_ssim_score, marker = 'o', linestyle = '--', color = "b")
+	plt.title('GAN Model: MSE Score vs. # Training Examples', fontsize = 15)
+	plt.ylabel('MSE Score', fontsize = 15)
+	plt.xlabel('# Training Examples (in 1,000s)', fontsize = 15)
+	plt.xticks(sort_gen)
 	plt.show()
 	return
 
@@ -132,9 +146,13 @@ def apply_argsort(o_array, a_array):
 	return output_array
 
 
+# def get_generator_name(gen_loc):
+# 	generator_name = subdir.split("generator_",1)[1]
+# 	generator_name = generator_name.split("_examples.npz",1)[0]
+# 	return int(generator_name)
+
 def get_generator_name(gen_loc):
-	generator_name = subdir.split("generator_",1)[1]
-	generator_name = generator_name.split("_examples.npz",1)[0]
+	generator_name = re.search('\d+(?=k)',gen_loc).group(0)
 	return int(generator_name)
 
 def read_file_to_list(filepath):
@@ -180,13 +198,15 @@ ssim_score_mass = []
 
 generators = []
 
+mse_score_og = []
+
 print ("ssim", "model", "mean", "variance", "minima", "maxima")
 # For all generators
 for dir, subdirs, files in os.walk(data_location):
 	for subdir in subdirs:
-
+		print(subdir)
 		generator_file_location = str(os.path.join(data_location, subdir))
-		gen_name = get_generator_name(generator_file_location)
+		gen_name = get_generator_name(subdir)
 		generators.append(gen_name)
 
 
@@ -211,6 +231,15 @@ for dir, subdirs, files in os.walk(data_location):
 		# print ("ssim_score", gen_name, np.mean(ssim_scores_500), np.var(ssim_scores_500), np.min(ssim_scores_500), np.max(ssim_scores_500))
 		ssim_score.append(np.mean(ssim_scores_500))
 		ssim_score_v.append(np.var(ssim_scores_500))
+
+		
+
+		#mseog
+		mn, var, item_mseoc = acumulate_data(generator_file_location, "mseog")
+		# ssimoc_means.append(m)
+		# ssimoc_vars.append(v)
+		mse_score_og.append(mn)
+
 
 
 # Obtain the argument order of indices and sort
@@ -241,6 +270,9 @@ sort_ssim_oo = np.ones(len(generators))
 plot_ssim_score(sort_gen, sort_ssim_score, sort_ssim_score_v)
 plot_ssim_og_oc_diff(sort_gen, sort_ssim_oo, sort_ssim_oc, sort_ssim_og, sort_ssim_oc_v, sort_ssim_og_v, sort_ssim_og_mins,sort_ssim_og_maxs, sort_ssim_oc_mins,sort_ssim_oc_maxs)
 plot_masses(sort_gen, sorted_ssim_score_mass, sort_ssim_score)
+
+# sort & plot mse values
+# plot_mse_score(sort_gen,mse_score_og)
 
 # collection_of_image_collections = collect_images(sorted_ssim_score_mass)
 

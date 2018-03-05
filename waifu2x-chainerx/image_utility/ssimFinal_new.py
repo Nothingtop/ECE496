@@ -13,6 +13,7 @@ import time
 import datetime
 import inspect
 import re
+from glob import glob
 
 quality_level = 10
 cwd = os.getcwd()
@@ -52,6 +53,11 @@ def testing_for_file(original_path_value, input_path_value, output_path_value):
     if inp_temp.shape[2] == 4:
         inp_temp = inp_temp[:, :, :3]
 
+    if len(orig_temp.shape) == 2:
+        orig_temp = np.dstack((orig_temp, orig_temp, orig_temp))
+
+    if orig_temp.shape[2] == 4:
+        orig_temp = orig_temp[:, :, :3]
     orig = img_as_float(orig_temp)
     inp = img_as_float(inp_temp)
     gen = img_as_float(gen_temp)
@@ -135,7 +141,6 @@ if __name__ == '__main__':
     for subdir, dirs, filesx in os.walk(args.model_path_folder):
         # Iterate through every model
         for filex in filesx:
-            print(filesx)
             # For a given model
             modelName = str(filex)
 
@@ -154,25 +159,29 @@ if __name__ == '__main__':
             mseog = []
             count = 0
             #change this ghetto ass part
-            # output_file_dir = args.output + "/" + str(os.path.splitext(filex)[0]) + "/"
-            output_file_dir = args.output
-            for original, input, output in zip(get_images(args.original),get_images(args.input), get_images(output_file_dir)):
-                
-                ogSize, inSize, outSize = getFileSizes(original, input, output)
-                reg_time, ssim_comp, ssim_gen, mse_comp, mse_gen= testing_for_file(original, input, output)
+            output_subdirs = glob(args.output + '/*')
+            for subDir in output_subdirs:
+                if re.search('\d+(?=k)',subDir).group(0) == re.search('\d+(?=k)',modelName).group(0):
+                    subDir_base = os.path.basename(os.path.normpath(subDir))
+                    output_file_dir = args.output + "/" + subDir_base
+                    # output_file_dir = args.output
+                    for original, input, output in zip(get_images(args.original),get_images(args.input), get_images(output_file_dir)):
+                       
+                        ogSize, inSize, outSize = getFileSizes(original, input, output)
+                        reg_time, ssim_comp, ssim_gen, mse_comp, mse_gen= testing_for_file(original, input, output)
 
-                # Add the results
-                # ilist.append(a)
-                ogFileSize.append(ogSize)
-                inFileSize.append(inSize)
-                outFileSize.append(outSize)
-                regt.append(reg_time)
-                ssimoc.append(ssim_comp)
-                ssimog.append(ssim_gen)
-                mseoc.append(mse_comp)
-                mseog.append(mse_gen)
+                        # Add the results
+                        # ilist.append(a)
+                        ogFileSize.append(ogSize)
+                        inFileSize.append(inSize)
+                        outFileSize.append(outSize)
+                        regt.append(reg_time)
+                        ssimoc.append(ssim_comp)
+                        ssimog.append(ssim_gen)
+                        mseoc.append(mse_comp)
+                        mseog.append(mse_gen)
 
-                print_stats(ogFileSize, inFileSize, outFileSize, regt, ssimoc, ssimog, mseoc, mseog, modelName)
-                write_data_to_file(ogFileSize, inFileSize, outFileSize, regt, ssimoc, ssimog, mseoc, mseog, modelName)
-                # endtime = time.time() - begin_time
-                # print("It took " + str(endtime/60) + " minutes for " + str(count) + " images.")
+                        print_stats(ogFileSize, inFileSize, outFileSize, regt, ssimoc, ssimog, mseoc, mseog, modelName)
+                    write_data_to_file(ogFileSize, inFileSize, outFileSize, regt, ssimoc, ssimog, mseoc, mseog, modelName)
+                        # endtime = time.time() - begin_time
+                        # print("It took " + str(endtime/60) + " minutes for " + str(count) + " images.")
