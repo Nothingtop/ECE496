@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "capstone",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "author": "henry",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "~4.0.0",
+    "connect": "~2.14.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.1"
+  }
+}
