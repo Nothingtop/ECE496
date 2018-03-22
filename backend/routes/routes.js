@@ -55,8 +55,16 @@ module.exports = function(app) {
                 '--model_name portraits_300x300_epoch640k.npz ' +
                 '--block_size 32', function(code, stdout, stderr) {
                 console.log('Program output:', stdout);
-                if (stderr != null)
-                    console.log('Program stderr:', stderr);
+                shell.exec('' +
+                    'python ./python_scripts/sitch_images.py ' +
+                    '--original ./original/' + filename + '.jpg ' +
+                    '--input ./input/' + filename + '.png ' +
+                    '--output ./output/' + filename + '.png ' +
+                    '--comparison_folder ./comparison/ ', function(code, stdout, stderr) {
+                    console.log('Program output:', stdout);
+                    if (stderr!=null)
+                        console.log(stderr);
+                });
             });
         });
 
