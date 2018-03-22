@@ -52,7 +52,7 @@
     public class MainActivity extends AppCompatActivity {
         static final int REQUEST_IMAGE_CAPTURE = 1;
         private static final int TAKE_GALLERY = 2;
-        private Uri imageUri;
+        String mCurrentPhotoPath;
 
         public class GenericFileProvider extends FileProvider {}
 
@@ -75,9 +75,28 @@
         }
 
         public void takePhoto() {
+//            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+//                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//            }
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // Ensure that there's a camera activity to handle the intent
             if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                // Create the File where the photo should go
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
+                    Uri photoURI = FileProvider.getUriForFile(this,
+                            "com.example.android.fileprovider",
+                            photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
             }
         }
 
@@ -117,10 +136,10 @@
             switch (requestCode) {
                 case REQUEST_IMAGE_CAPTURE: {
                     if (resultCode == Activity.RESULT_OK) {
-                        Bundle extras = data.getExtras();
-                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+//                        Bundle extras = data.getExtras();
+//                        Bitmap imageBitmap = (Bitmap) extras.get("data");
                         try {
-                            uploadImage(createImageFile(imageBitmap));
+                            uploadImage(new File(mCurrentPhotoPath));
                         } catch (Exception e) {
                             Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT)
                                     .show();
@@ -145,10 +164,25 @@
             }
         }
 
+        private File createImageFile() throws IOException {
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String imageFileName = "IMG_" + timeStamp + "_";
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            File image = File.createTempFile(
+                    imageFileName,  /* prefix */
+                    ".jpg",         /* suffix */
+                    storageDir      /* directory */
+            );
+
+            // Save a file: path for use with ACTION_VIEW intents
+            mCurrentPhotoPath = image.getAbsolutePath();
+            return image;
+        }
+
         private File createImageFile(Bitmap bitmap) throws IOException {
             // Create an image file name
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String imageFileName = "JPEG_" + timeStamp + "_";
+            String imageFileName = "IMG_" + timeStamp + "_";
             File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             File image = File.createTempFile(
                     imageFileName,  /* prefix */
@@ -165,7 +199,7 @@
 
         private void uploadImage(File im) {
             Future uploading = Ion.with(MainActivity.this)
-                        .load("http://192.168.33.131:44000/upload")
+                        .load("https://7dc81d3e.ngrok.io/upload")
                         .setMultipartFile("image", im)
                         .asString()
                         .withResponse()
