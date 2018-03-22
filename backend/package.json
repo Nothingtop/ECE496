@@ -10,8 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "connect": "~2.14.4",
     "express": "~4.0.0",
-    "connect": "~2.14.4"
+    "shelljs": "^0.8.1"
   },
   "devDependencies": {
     "nodemon": "^1.17.1"
