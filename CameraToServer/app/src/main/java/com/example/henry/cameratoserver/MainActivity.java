@@ -24,6 +24,7 @@
     import android.view.View;
     import android.view.Menu;
     import android.view.MenuItem;
+    import android.widget.EditText;
     import android.widget.ImageView;
     import android.widget.Toast;
 
@@ -199,7 +200,9 @@
 
         private void uploadImage(File im) {
             Future uploading = Ion.with(MainActivity.this)
-                        .load("https://7dc81d3e.ngrok.io/upload")
+                        .load("https://"
+                                + ((EditText)findViewById(R.id.serverID)).getText().toString()
+                                + ".ngrok.io/upload")
                         .setMultipartFile("image", im)
                         .asString()
                         .withResponse()

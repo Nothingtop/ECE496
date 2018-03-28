@@ -16,4 +16,7 @@ if __name__ == '__main__':
         os.makedirs(args.output_folder)
     filename = os.path.basename(args.input).split('.')[0]
     image = Image.open(args.input).convert("RGB")
+    image.save(args.output_folder + filename + ".jpg", format="JPEG", quality=args.quality)
+    image = Image.open(args.output_folder + filename + ".jpg").convert("RGB")
     image.save(args.output_folder + filename + ".png", format="PNG", quality=args.quality)
+    os.remove(args.output_folder + filename + ".jpg")

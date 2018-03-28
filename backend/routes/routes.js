@@ -31,9 +31,9 @@ module.exports = function(app) {
 
     app.get('/uploads/:file', function (req, res){
         file = req.params.file;
-        var dirname = "/home/rajamalw/Node/file-upload";
+        var dirname = "./original";
         var img = fs.readFileSync(dirname + "/uploads/" + file);
-        res.writeHead(200, {'Content-Type': 'image/png' });
+        res.writeHead(200, {'Content-Type': 'image/jpg' });
         res.end(img, 'binary');
 
     });
@@ -50,11 +50,14 @@ module.exports = function(app) {
                 '--noise_level 0 ' +
                 '--input ./input/' + filename + '.png ' +
                 '--arch VGG7 ' +
+                '--gpu 0 ' +
                 '--output ./output ' +
                 '--model_dir /home/k/ECE496/waifu2x-chainerx/models ' +
                 '--model_name portraits_300x300_epoch640k.npz ' +
                 '--block_size 32', function(code, stdout, stderr) {
                 console.log('Program output:', stdout);
+                if (stderr!=null)
+                    console.log(stderr);
                 shell.exec('' +
                     'python ./python_scripts/sitch_images.py ' +
                     '--original ./original/' + filename + '.jpg ' +
