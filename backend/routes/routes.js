@@ -1,14 +1,9 @@
 var fs = require('fs');
 const shell  = require('child_process');
 
+
 module.exports = function(app) {
-
-
-    app.get('/',function(req,res){
-        processImage('/home/k/ECE496/waifu2x-chainerx/images/small.png', "small.png");
-        res.end("Node-File-Upload");
-    });
-
+    
     app.post('/upload', function(req, res) {
         console.log(req.files.image.originalFilename);
         console.log(req.files.image.path);
@@ -44,18 +39,13 @@ module.exports = function(app) {
             '-q 10 ' +
             '-i '+ './original/' + filename + '.jpg ' +
             '-o ./input/ ', function(code, stdout, stderr) {
-            shell.exec('' +
-                'python /home/k/ECE496/waifu2x-chainerx/waifu2x.py ' +
-                '--method noise ' +
-                '--noise_level 0 ' +
-                '--input ./input/' + filename + '.png ' +
-                '--arch VGG7 ' +
-                '--gpu 0 ' +
-                '--output ./output ' +
-                '--model_dir /home/k/ECE496/waifu2x-chainerx/models ' +
-                '--model_name portraits_300x300_epoch640k.npz ' +
-                '--block_size 32', function(code, stdout, stderr) {
-                console.log('Program output:', stdout);
+            shell.exec('python ./gan/test.py ' +
+                '--model_path ./gan/gan.npz ' +
+                '--input_path ./input/' + filename + '.png '  +
+                '--output_folder ./output/ ' +
+                '--filename ' + filename + '.png ' +
+                '--use_gpu=0', function(code, stdout, stderr) {
+                console.log('GAN Model output:', stdout);
                 if (stderr!=null)
                     console.log(stderr);
                 shell.exec('' +
@@ -63,8 +53,7 @@ module.exports = function(app) {
                     '--original ./original/' + filename + '.jpg ' +
                     '--input ./input/' + filename + '.png ' +
                     '--output ./output/' + filename + '.png ' +
-                    '--comparison_folder ./comparison/ ', function(code, stdout, stderr) {
-                    console.log('Program output:', stdout);
+                    '--comparison_folder ./public/comparison/ ', function(code, stdout, stderr) {
                     if (stderr!=null)
                         console.log(stderr);
                 });
