@@ -1,9 +1,8 @@
 var fs = require('fs');
 const shell  = require('child_process');
 
-
 module.exports = function(app) {
-    
+
     app.post('/upload', function(req, res) {
         console.log(req.files.image.originalFilename);
         console.log(req.files.image.path);
@@ -24,12 +23,20 @@ module.exports = function(app) {
     });
 
 
-    app.get('/uploads/:file', function (req, res){
-        file = req.params.file;
-        var dirname = "./original";
-        var img = fs.readFileSync(dirname + "/uploads/" + file);
+    app.get('/uploads', function (req, res){
+        // var file = req.params.file;
+        var file = "comparison/active.png";
+        var dirname = "./public/";
+        console.log("Get request for image at " + dirname + file);
+        var img = fs.readFileSync(dirname + file);
         res.writeHead(200, {'Content-Type': 'image/jpg' });
         res.end(img, 'binary');
+
+    });
+
+    app.get('/getUpdateCount', function (req, res){
+        res.writeHead(200, {'Content-Type': 'appliation/json' });
+        res.end(JSON.stringify({ count: global.updateCount }));
 
     });
 
@@ -54,8 +61,11 @@ module.exports = function(app) {
                     '--input ./input/' + filename + '.png ' +
                     '--output ./output/' + filename + '.png ' +
                     '--comparison_folder ./public/comparison/ ', function(code, stdout, stderr) {
-                    if (stderr!=null)
+                    if (stderr!=null) {
                         console.log(stderr);
+                    }
+                    global.updateCount += 1;
+                    console.log(global.updateCount);
                 });
             });
         });

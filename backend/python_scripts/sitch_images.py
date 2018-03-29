@@ -25,6 +25,7 @@ if __name__ == '__main__':
     new_im.paste(imageOriginal, (0, 0))
     new_im.paste(imageInput, (width, 0))
     new_im.paste(imageOutput, (width*2, 0))
-    new_im.save(args.comparison_folder + filename + '.png', format="PNG")
+    #new_im.save(args.comparison_folder + filename + '.png', format="PNG")
+    new_im.save(args.comparison_folder + "active" + '.png', format="PNG")
 
 

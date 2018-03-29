@@ -12,6 +12,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+global.updateCount=0;
+
 // view engine w/ jade
 app.set('views', path.join('.', '/views'));
 app.set('view engine', 'jade');
