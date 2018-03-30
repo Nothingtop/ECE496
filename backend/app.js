@@ -12,14 +12,15 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-global.updateCount=0;
-
 // view engine w/ jade
 app.set('views', path.join('.', '/views'));
 app.set('view engine', 'jade');
 
 //configure shit
 app.use(express.static('./public'));
+app.use(express.static('./original'));
+app.use(express.static('./input'));
+app.use(express.static('./output'));
 app.use(connect.cookieParser());
 app.use(connect.logger('dev'));
 app.use(connect.bodyParser());

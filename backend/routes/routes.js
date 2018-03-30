@@ -1,4 +1,5 @@
 var fs = require('fs');
+var _ = require('underscore');
 const shell  = require('child_process');
 
 module.exports = function(app) {
@@ -22,23 +23,30 @@ module.exports = function(app) {
         processImage(req.files.image.originalFilename.split('.')[0]);
     });
 
-
-    app.get('/uploads', function (req, res){
-        // var file = req.params.file;
-        var file = "comparison/active.png";
-        var dirname = "./public/";
-        console.log("Get request for image at " + dirname + file);
-        var img = fs.readFileSync(dirname + file);
-        res.writeHead(200, {'Content-Type': 'image/jpg' });
+    app.get('/getFile', function (req, res){
+        var filedir = './' + req.param('fileDir') + '/';
+        var file = getMostRecentFileName(filedir);
+        var img = fs.readFileSync(filedir + file);
+        res.writeHead(200, {'Content-Type': 'image/png' });
         res.end(img, 'binary');
-
     });
 
     app.get('/getUpdateCount', function (req, res){
         res.writeHead(200, {'Content-Type': 'appliation/json' });
-        res.end(JSON.stringify({ count: global.updateCount }));
+        res.end(JSON.stringify({ count: fs.readdirSync('./output/').length }));
 
     });
+
+    function getMostRecentFileName(dir) {
+        var files = fs.readdirSync(dir);
+
+        // use underscore for max()
+        return _.max(files, function (f) {
+            var fullpath = dir + f;
+
+            return fs.statSync(fullpath).ctime;
+        });
+    }
 
     function processImage(filename) {
         shell.exec('' +
@@ -56,11 +64,11 @@ module.exports = function(app) {
                 if (stderr!=null)
                     console.log(stderr);
                 shell.exec('' +
-                    'python ./python_scripts/sitch_images.py ' +
-                    '--original ./original/' + filename + '.jpg ' +
+                    'python ./python_scripts/scores.py ' +
+                    '--original ./original/' + filename + '.png ' +
                     '--input ./input/' + filename + '.png ' +
                     '--output ./output/' + filename + '.png ' +
-                    '--comparison_folder ./public/comparison/ ', function(code, stdout, stderr) {
+                    '--save_folder ./scores/ ', function(code, stdout, stderr) {
                     if (stderr!=null) {
                         console.log(stderr);
                     }

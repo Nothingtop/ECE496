@@ -1,10 +1,10 @@
-block content
+block xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.org/1999/xhtml" content
 
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
+    script(src="https://unpkg.com/axios/dist/axios.min.js")
     script.
         var updateCount = 0;
-        var firstGet = true;
-        var requestLoop = setInterval(function () {
+        setInterval(function () {
             $.ajax({
                 type: "GET",
                 url: "http://localhost:44000/getUpdateCount",
@@ -12,23 +12,23 @@ block content
             }).done(function (res) {
                 if (res.count > updateCount) {
                     updateCount = res.count;
-                    getNewImage("comparison/active.png");
+                    getNewImage("original");
+                    getNewImage("input");
+                    getNewImage("output");
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 alert("AJAX call failed: " + textStatus + ", " + errorThrown);
             });
         }, 1000);
 
-        function getNewImage(filename) {
-            // location.reload();
-
-            var myUrl = "http://localhost:44000/uploads";
+        function getNewImage(dirName) {
+            var myUrl = "http://localhost:44000/getFile\?fileDir=" + dirName + "\&";
             $.ajax({
                 type: "GET",
                 url: myUrl,
                 mimeType: "text/plain; charset=x-user-defined"
             }).done(function (data) {
-                $("#IMGZ").attr('src', 'data:image/jpeg;base64,' + base64Encode(data));
+                $("#" + dirName).attr('src', 'data:image/jpeg;base64,' + base64Encode(data));
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 alert("AJAX call failed: " + textStatus + ", " + errorThrown);
             });
@@ -62,5 +62,7 @@ block content
             return out;
         }
 
-    //p Welcome to #{title}
-    img.className#IMGZ(src="comparison/active.png" alt="Image Title")
+    div(width="100%",display = 'table', align='center')
+        img.className#original(src="", width='30%', hspace='25')
+        img.className#input(src="", width='30%', hspace='25')
+        img.className#output(src="", width='30% ', hspace='25')

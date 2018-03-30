@@ -11,8 +11,8 @@ args = p.parse_args()
 
 if __name__ == '__main__':
 
-    if not os.path.exists(args.comparison_folder):
-        os.makedirs(args.comparison_folder)
+        if not os.path.exists(args.comparison_folder):
+            os.makedirs(args.comparison_folder)
 
     imageOriginal = Image.open(args.original).convert("RGB")
     imageInput = Image.open(args.input).convert("RGB")
