@@ -78,10 +78,10 @@ def main():
     if not os.path.exists(args.save_folder):
         os.makedirs(args.save_folder)
 
-    ssim_input = str(round(get_ssim_value(args.original, args.input), 2))
-    ssim_output = str(round(get_ssim_value(args.original, args.output), 2))
-    filesize_input = str(int(round(get_filesize(args.original, args.input))))
-    filesize_output = str(int(round(get_filesize(args.original, args.output))))
+    ssim_input = str(round(get_ssim_value(args.original, args.input), 3))
+    ssim_output = str(round(get_ssim_value(args.original, args.output), 3))
+    filesize_input = str(round(get_filesize(args.original, args.input), 3))
+    filesize_output = str(round(get_filesize(args.original, args.output), 3))
 
     writeImage(args.input, ssim_input, filesize_input)
     writeImage(args.output, ssim_output, filesize_output)
@@ -90,7 +90,7 @@ def main():
     f.writelines(ssim_input + '\n')
     f.writelines(ssim_output + '\n')
     f.writelines(filesize_input + '\n')
-    f.writelines(filesize_output + '\n')
+    f.writelines(filesize_output)
 
     f.close()
 

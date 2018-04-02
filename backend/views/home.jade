@@ -3,12 +3,13 @@ block xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
     script(src="https://unpkg.com/axios/dist/axios.min.js")
     script.
-        var siteURL = "https://#{title}"+".ngrok.io"
+        var siteURL = window.location.href;
+        // if (siteURL.split('://'))
         var updateCount = 0;
         setInterval(function () {
             $.ajax({
                 type: "GET",
-                url: siteURL+"/getUpdateCount",
+                url: siteURL+"getUpdateCount",
                 dataType: "json"
             }).done(function (res) {
                 if (res.count > updateCount) {
@@ -18,18 +19,53 @@ block xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.
                     getNewImage("output");
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert("AJAX call failed: " + textStatus + ", " + errorThrown);
+                console.log("AJAX call failed: " + textStatus + ", " + errorThrown);
             });
         }, 1000);
 
+        watchUpdates();
+
+        function watchUpdates(){
+            $.ajax({
+                type: "GET",
+                url: siteURL + "getUpdateCount",
+                dataType: "json",
+                timeout: 30000,
+            }).done(function (res) {
+                if (res.count > updateCount) {
+                    updateCount = res.count;
+                    getNewImage("original");
+                    getNewImage("input");
+                    getNewImage("output");
+                    watchUpdates();
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.log("AJAX call failed: " + textStatus + ", " + errorThrown);
+                watchUpdates();
+            });
+        }
+
         function getNewImage(dirName) {
-            var myUrl = siteURL + "/getFile\?fileDir=" + dirName + "\&";
+            var myUrl = siteURL + "getFile\?fileDir=" + dirName + "\&";
             $.ajax({
                 type: "GET",
                 url: myUrl,
                 mimeType: "text/plain; charset=x-user-defined"
             }).done(function (data) {
                 $("#" + dirName).attr('src', 'data:image/jpeg;base64,' + base64Encode(data));
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert("AJAX call failed: " + textStatus + ", " + errorThrown);
+            });
+        }
+
+        function getData() {
+            var myUrl = siteURL + "getData";
+            $.ajax({
+                type: "GET",
+                url: myUrl,
+                dataType: "json"
+            }).done(function (res) {
+                alert(res.toString());
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 alert("AJAX call failed: " + textStatus + ", " + errorThrown);
             });

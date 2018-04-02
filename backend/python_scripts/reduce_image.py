@@ -16,7 +16,7 @@ if __name__ == '__main__':
         os.makedirs(args.output_folder)
     filename = os.path.basename(args.input).split('.')[0]
 
-    os.system("mogrify " + args.input + " -resize 26% " + args.input)
+    os.system("mogrify " + args.input + " -resize 25% " + args.input)
     os.system("convert " + ' -rotate "90" '  + args.input + " "  + args.input)
 
     imageOrig = Image.open(args.input).convert("RGB")

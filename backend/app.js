@@ -7,10 +7,6 @@ var app      = express();
 var port     = process.env.PORT || 44000;
 
 var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
 
 // view engine w/ jade
 app.set('views', path.join('.', '/views'));
@@ -27,7 +23,6 @@ app.use(connect.bodyParser());
 
 app.use(connect.json());
 app.use(connect.urlencoded());
-
 
 // Routes
 

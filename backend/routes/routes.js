@@ -1,8 +1,7 @@
 var fs = require('fs');
 var _ = require('underscore');
 const shell  = require('child_process');
-const readline = require('readline');
-
+const cron = require('node-cron');
 
 module.exports = function(app) {
 
@@ -27,35 +26,45 @@ module.exports = function(app) {
 
     app.get('/getFile', function (req, res){
         var filedir = './' + req.param('fileDir') + '/';
-        var file = getMostRecentFileName(filedir);
-        var img = fs.readFileSync(filedir + file);
-        res.writeHead(200, {'Content-Type': 'image/png' });
+        var img;
+
+        var index = req.param('index');
+        if(typeof index == 'undefined')
+            img = fs.readFileSync(filedir + getMostRecentFileName(filedir));
+        else
+            img = fs.readFileSync(filedir + getFilesSortedByDate(filedir).reverse()[index]);
+        res.writeHead(200, {'Content-Type': 'image/png'});
         res.end(img, 'binary');
     });
 
-    app.get('/getSsim', function (req, res){
-        var file = './scores/' + req.param('filename') + '.txt';
-
-        var json = JSON.stringify(readFromFile(file));
-        res.writeHead(200, {'Content-Type': 'application/json' });
+    app.get('/getData', function (req, res){
+        var json = JSON.stringify(readFromFiles('./scores/'));
+        res.writeHead(200, {'Content-Type': 'application/json', "Access-Control-Allow-Origin" : "*"});
         res.end(json);
     });
 
     app.get('/getUpdateCount', function (req, res){
-        res.writeHead(200, {'Content-Type': 'appliation/json' });
+        res.writeHead(200, {'Content-Type': 'appliation/json', "Access-Control-Allow-Origin" : "*"});
         res.end(JSON.stringify({ count: fs.readdirSync('./scores/').length }));
+        fs.watch('./scores/', { encoding: 'buffer' }, (eventType, filename) => {
+            if (filename) {
+            }
+        });
     });
 
-    function readFromFile(file) {
-        var results = [];
-        const rl = readline.createInterface({
-            input: fs.createReadStream(file),
-            crlfDelay: Infinity
+    function getFilesSortedByDate(dir) {
+        return fs.readdirSync(dir, function(err, files){
+            files = files.map(function (fileName) {
+                return {
+                    name: fileName,
+                    time: fs.statSync(dir + '/' + fileName).mtime.getTime()
+                };
+            })
+                .sort(function (a, b) {
+                    return a.time - b.time; })
+                .map(function (v) {
+                    return v.name; });
         });
-        rl.on('line', (line) => {
-            results.push(line)
-        });
-        return results;
     }
 
     function getMostRecentFileName(dir) {
@@ -71,7 +80,7 @@ module.exports = function(app) {
     function processImage(filename) {
         shell.exec('' +
             'python ./python_scripts/reduce_image.py ' +
-            '-q 10 ' +
+            '-q 5 ' +
             '-i '+ './original/' + filename + '.jpg ' +
             '-o ./input/ ', function(code, stdout, stderr) {
             shell.exec('python ./gan/test.py ' +
@@ -97,7 +106,19 @@ module.exports = function(app) {
                 });
             });
         });
-
     }
+
+    function readFromFiles(fileDir) {
+        var results = [];
+        var files = fs.readdirSync(fileDir);
+        files.forEach( function(file, index ) {
+            results.push(fs.readFileSync(fileDir + file).toString().split('\n'));
+        });
+        return results;
+    }
+
+    cron.schedule('10 * * * *', function(){
+        console.log('sup');
+    });
 
 };
