@@ -1,6 +1,8 @@
 var fs = require('fs');
 var _ = require('underscore');
 const shell  = require('child_process');
+const readline = require('readline');
+
 
 module.exports = function(app) {
 
@@ -31,11 +33,30 @@ module.exports = function(app) {
         res.end(img, 'binary');
     });
 
+    app.get('/getSsim', function (req, res){
+        var file = './scores/' + req.param('filename') + '.txt';
+
+        var json = JSON.stringify(readFromFile(file));
+        res.writeHead(200, {'Content-Type': 'application/json' });
+        res.end(json);
+    });
+
     app.get('/getUpdateCount', function (req, res){
         res.writeHead(200, {'Content-Type': 'appliation/json' });
-        res.end(JSON.stringify({ count: fs.readdirSync('./output/').length }));
-
+        res.end(JSON.stringify({ count: fs.readdirSync('./scores/').length }));
     });
+
+    function readFromFile(file) {
+        var results = [];
+        const rl = readline.createInterface({
+            input: fs.createReadStream(file),
+            crlfDelay: Infinity
+        });
+        rl.on('line', (line) => {
+            results.push(line)
+        });
+        return results;
+    }
 
     function getMostRecentFileName(dir) {
         var files = fs.readdirSync(dir);
@@ -43,7 +64,6 @@ module.exports = function(app) {
         // use underscore for max()
         return _.max(files, function (f) {
             var fullpath = dir + f;
-
             return fs.statSync(fullpath).ctime;
         });
     }

@@ -7,6 +7,7 @@ from skimage import data, img_as_float
 import argparse
 from skimage.measure import compare_ssim as ssim
 import pandas as pd
+import cv2
 
 range_start = 1
 range_end = 100
@@ -67,17 +68,57 @@ p.add_argument('--output', '-p')
 p.add_argument('--save_folder', '-s')
 args = p.parse_args()
 
+font = cv2.FONT_HERSHEY_SIMPLEX
+fontScale = 0.65
+fontColor = (255, 255, 255)
+lineType = 1
+
 
 def main():
-	if not os.path.exists(args.save_folder):
-		os.makedirs(args.save_folder)
+    if not os.path.exists(args.save_folder):
+        os.makedirs(args.save_folder)
 
-	f = open(args.save_folder + args.original.split('/')[-1].split('.')[0] + '.txt', 'w')
-	f.writelines(str(get_ssim_value(args.original, args.input)) + " " + str(get_ssim_value(args.original, args.output)) +'\n')
-	f.writelines(str(get_filesize(args.original, args.input)) + " " + str(get_filesize(args.original, args.output)))
-	f.close()
+    ssim_input = str(round(get_ssim_value(args.original, args.input), 2))
+    ssim_output = str(round(get_ssim_value(args.original, args.output), 2))
+    filesize_input = str(int(round(get_filesize(args.original, args.input))))
+    filesize_output = str(int(round(get_filesize(args.original, args.output))))
 
-	return
+    writeImage(args.input, ssim_input, filesize_input)
+    writeImage(args.output, ssim_output, filesize_output)
+
+    f = open(args.save_folder + args.original.split('/')[-1].split('.')[0] + '.txt', 'w')
+    f.writelines(ssim_input + '\n')
+    f.writelines(ssim_output + '\n')
+    f.writelines(filesize_input + '\n')
+    f.writelines(filesize_output + '\n')
+
+    f.close()
+
+    return
+
+def writeImage(file, ssim, fileSize) :
+    img = cv2.imread(file)
+    height, width, _ = img.shape
+
+    leftCorner = (10, height - 30)
+    rightCorner = (10, height - 10)
+
+    ssimText = 'SSIM:' + ssim
+    filesizeText = 'Filesize:' + fileSize + '%'
+
+    cv2.putText(img, ssimText,
+                leftCorner,
+                font,
+                fontScale,
+                fontColor,
+                lineType)
+    cv2.putText(img, filesizeText,
+                rightCorner,
+                font,
+                fontScale,
+                fontColor,
+                lineType)
+    cv2.imwrite(file, img)
 
 
 if __name__ == "__main__":

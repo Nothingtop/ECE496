@@ -3,11 +3,12 @@ block xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
     script(src="https://unpkg.com/axios/dist/axios.min.js")
     script.
+        var siteURL = "https://#{title}"+".ngrok.io"
         var updateCount = 0;
         setInterval(function () {
             $.ajax({
                 type: "GET",
-                url: "http://localhost:44000/getUpdateCount",
+                url: siteURL+"/getUpdateCount",
                 dataType: "json"
             }).done(function (res) {
                 if (res.count > updateCount) {
@@ -22,7 +23,7 @@ block xmlns:display="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.
         }, 1000);
 
         function getNewImage(dirName) {
-            var myUrl = "http://localhost:44000/getFile\?fileDir=" + dirName + "\&";
+            var myUrl = siteURL + "/getFile\?fileDir=" + dirName + "\&";
             $.ajax({
                 type: "GET",
                 url: myUrl,
