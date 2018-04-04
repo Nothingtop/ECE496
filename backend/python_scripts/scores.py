@@ -106,18 +106,14 @@ def writeImage(file, ssim, fileSize) :
     ssimText = 'SSIM:' + ssim
     filesizeText = 'Filesize:' + fileSize + '%'
 
+    cv2.rectangle(img, (0, height-30), (130, height), (0,0,0), -1)
     cv2.putText(img, ssimText,
-                leftCorner,
-                font,
-                fontScale,
-                fontColor,
-                lineType)
-    cv2.putText(img, filesizeText,
                 rightCorner,
                 font,
                 fontScale,
                 fontColor,
-                lineType)
+                lineType,
+                cv2.LINE_AA)
     cv2.imwrite(file, img)
 
 
